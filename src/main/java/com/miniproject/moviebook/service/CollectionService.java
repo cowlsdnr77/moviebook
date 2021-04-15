@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class CollectionService {
     // 컬렉션 목록 반환
     public List<Collection> getCollection(Long u_id) {
         User user = userRepository.findById(u_id).orElseThrow(
-                () -> new IllegalArgumentException("user Error")
+                () -> new IllegalArgumentException("해당 유저 정보가 없습니다.")
         );
         List<Collection> collectionList = collectionRepository.findByUser(user);
         return collectionList;
@@ -31,17 +32,23 @@ public class CollectionService {
     // 컬렉션 추가
     public Collection addCollection(Long u_id, Long m_id) {
         User user = userRepository.findById(u_id).orElseThrow(
-                () -> new IllegalArgumentException("user Error")
+                () -> new IllegalArgumentException("해당 유저 정보가 없습니다.")
         );
 
         Movie movie = movieRepository.findById(m_id).orElseThrow(
-                () -> new IllegalArgumentException("movie Error")
+                () -> new IllegalArgumentException("해당 영화 정보가 없습니다.")
         );
 
-        Collection collection = new Collection(user,movie);
-        collectionRepository.save(collection);
+        // Collection에 중복된 Movie 담으려고 할 때 처리
+        Optional<Collection> collection_exist = collectionRepository.findByUserAndMovie(user,movie);
+        if (collection_exist.isPresent()) {
+            throw new IllegalArgumentException("중복된 영화는 담을 수 없습니다.");
+        } else {
+            Collection collection = new Collection(user,movie);
+            collectionRepository.save(collection);
+            return collection;
+        }
 
-        return collection;
     }
 
 

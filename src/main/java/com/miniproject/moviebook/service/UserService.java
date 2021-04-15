@@ -24,7 +24,21 @@ public class UserService {
             throw new IllegalArgumentException("중복된 사용자 ID 가 존재합니다.");
         }
 
-        User user = new User(requestDto);
-        return userRepository.save(user);
+        if (!requestDto.getPassword().equals(requestDto.getPassword_confirm())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        } else{
+            User user = new User(requestDto);
+            return userRepository.save(user);
+        }
+    }
+
+    /* username 중복 체크 */
+    public String usernameCheck(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        if(user.isPresent()) {
+            return "true";
+        } else {
+            return "false";
+        }
     }
 }

@@ -21,14 +21,14 @@ public class MovieService {
         Random rand = new Random();
         Set<Long> set = new HashSet<>();
 
-        while(set.size() < 10) {
+        while(set.size() < 7) {
             Long num = (long) ((int) rand.nextInt(200) + 1);
             set.add(num);
         }
 
         List<Long> list = new ArrayList<>(set);
 
-        for(int i = 0; i<10 ; i++) {
+        for(int i = 0; i<7 ; i++) {
             Optional<Movie> movie = movieRepository.findById(list.get(i));
             movieList.add(movie);
         }

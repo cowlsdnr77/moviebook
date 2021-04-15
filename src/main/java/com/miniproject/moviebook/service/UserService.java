@@ -4,6 +4,7 @@ import com.miniproject.moviebook.dto.SignupRequestDto;
 import com.miniproject.moviebook.model.User;
 import com.miniproject.moviebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-//    private final BCryptPasswordEncoder bCryptPasswordEncoder; 스프링 시큐리티 설치해야 사용가능
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /* 회원가입 */
     public User createUser(SignupRequestDto requestDto) {
@@ -27,6 +28,7 @@ public class UserService {
         if (!requestDto.getPassword().equals(requestDto.getPassword_confirm())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         } else{
+            requestDto.setPassword(bCryptPasswordEncoder.encode(requestDto.getPassword()));
             User user = new User(requestDto);
             return userRepository.save(user);
         }

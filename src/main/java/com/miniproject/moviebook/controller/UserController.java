@@ -4,6 +4,7 @@ import com.miniproject.moviebook.dto.SignupRequestDto;
 import com.miniproject.moviebook.model.User;
 import com.miniproject.moviebook.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping("/api/signup")
     public User createUser(@RequestBody SignupRequestDto signupRequestDto) {

@@ -6,7 +6,9 @@ import com.miniproject.moviebook.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -15,14 +17,34 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     //해당 영화 리뷰 목록 조회
-    @GetMapping("/api/movies/reviews/{m_id}")
+    @GetMapping("/api/movies/reviews/list/{m_id}")
     public List<Review> getReviewList(@PathVariable Long m_id) {
         return reviewService.getReviewList(m_id);
     }
 
     //해당 영화 리뷰 작성
-    @PostMapping("/api/movies/reviews/{u_id}/{m_id}")
-    public Review createReview(@PathVariable Long u_id, @PathVariable Long m_id, @RequestBody  ReviewRequestDto requestDto) {
-        return reviewService.createReview(requestDto, u_id, m_id);
+    @PostMapping("/api/movies/reviews/authentication/{m_id}")
+    public String createReview(@PathVariable Long m_id, @RequestBody  ReviewRequestDto requestDto) {
+        return reviewService.createReview(requestDto, m_id);
+    }
+
+    //해당 영화 리뷰 수정
+    @PutMapping("/api/movies/reviews/authentication/{r_id}")
+    public String updateReview(@PathVariable Long r_id, @RequestBody ReviewRequestDto requestDto) {
+        return reviewService.updateReview(requestDto, r_id);
+    }
+
+    //해당 영화 리뷰 삭제
+    @DeleteMapping("/api/movies/reviews/authentication/{r_id}")
+    public String deleteReview(@PathVariable Long r_id) {
+        return reviewService.deleteReview(r_id);
+    }
+
+    // 예외 처리
+    @ExceptionHandler({IllegalArgumentException.class})
+    public Map<String, String> handleException(Exception e) {
+        Map<String, String> map = new HashMap<>();
+        map.put("errMsg", e.getMessage());
+        return map;
     }
 }

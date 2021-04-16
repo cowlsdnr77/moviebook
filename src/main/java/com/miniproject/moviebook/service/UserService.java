@@ -17,7 +17,7 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /* 회원가입 */
-    public User createUser(SignupRequestDto requestDto) {
+    public String createUser(SignupRequestDto requestDto) {
 
         String username = requestDto.getUsername();
         Optional<User> found = userRepository.findByUsername(username);
@@ -30,7 +30,8 @@ public class UserService {
         } else{
             requestDto.setPassword(bCryptPasswordEncoder.encode(requestDto.getPassword()));
             User user = new User(requestDto);
-            return userRepository.save(user);
+            userRepository.save(user);
+            return "회원가입이 완료되었습니다.";
         }
     }
 

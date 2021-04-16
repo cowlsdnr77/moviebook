@@ -1,5 +1,6 @@
 package com.miniproject.moviebook.service;
 
+import com.miniproject.moviebook.auth.PrincipalDetails;
 import com.miniproject.moviebook.model.Collection;
 import com.miniproject.moviebook.model.Movie;
 import com.miniproject.moviebook.model.User;
@@ -7,6 +8,8 @@ import com.miniproject.moviebook.repository.CollectionRepository;
 import com.miniproject.moviebook.repository.MovieRepository;
 import com.miniproject.moviebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,10 +33,10 @@ public class CollectionService {
     }
 
     // 컬렉션 추가
-    public Collection addCollection(Long u_id, Long m_id) {
-        User user = userRepository.findById(u_id).orElseThrow(
-                () -> new IllegalArgumentException("해당 유저 정보가 없습니다.")
-        );
+    public String addCollection(Long m_id) {
+        // 현재 유저 정보
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((PrincipalDetails) authentication.getPrincipal()).getUser();
 
         Movie movie = movieRepository.findById(m_id).orElseThrow(
                 () -> new IllegalArgumentException("해당 영화 정보가 없습니다.")
@@ -46,11 +49,25 @@ public class CollectionService {
         } else {
             Collection collection = new Collection(user,movie);
             collectionRepository.save(collection);
-            return collection;
+            return "컬렉션에 추가되었습니다.";
         }
-
     }
 
+    // 컬렉션 삭제
+    public String deleteCollection(Long c_id){
+        Collection collection = collectionRepository.findById(c_id).orElseThrow(
+                () -> new IllegalArgumentException("컬렉션 정보가 없습니다.")
+        );
+        // 현재 유저 정보
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = ((PrincipalDetails) authentication.getPrincipal()).getUser();
 
+        if (user.getU_id().equals(collection.getUser().getU_id())) {
+            collectionRepository.deleteById(collection.getC_id());
+            return "컬렉션이 삭제되었습니다.";
+        } else {
+            throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
+        }
+    }
 
 }

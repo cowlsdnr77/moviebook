@@ -80,12 +80,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-                .antMatchers("/api/collections/**").permitAll()
                 .antMatchers("/api/signup/**").permitAll()
-                .antMatchers("/api/movies/**").permitAll()
-                .antMatchers("/api/reviews/**").permitAll()
                 .antMatchers("/api/user/**").permitAll()
-                .antMatchers("/api/user/**").access("hasRole('ROLE_USER')")
+                .antMatchers("/api/movies/**").permitAll()
+                .antMatchers("/api/reviews/list/**").permitAll()
+                .antMatchers("/api/collections/list/**").permitAll()
+                .antMatchers("/api/reviews/authentication/**").authenticated()
+                .antMatchers("/api/collections/authentication/**").authenticated()
                 .anyRequest().permitAll();
     }
 

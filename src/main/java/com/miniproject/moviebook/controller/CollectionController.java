@@ -17,22 +17,21 @@ public class CollectionController {
     private final CollectionRepository collectionRepository;
 
     //User의 영화 컬렉션 조회
-    @GetMapping("/api/collections/{u_id}")
+    @GetMapping("/api/collections/list/{u_id}")
     public List<Collection> getCollectionList(@PathVariable Long u_id) {
         return collectionService.getCollection(u_id);
     }
 
     //User의 영화 컬렉션에 영화 추가
-    @PostMapping("/api/collections/{u_id}/{m_id}")
-    public Collection addMovieToCollection(@PathVariable Long u_id, @PathVariable Long m_id) {
-        return collectionService.addCollection(u_id, m_id);
+    @PostMapping("/api/collections/authentication/{m_id}")
+    public String addMovieToCollection( @PathVariable Long m_id) {
+        return collectionService.addCollection(m_id);
     }
 
     //User의 영화 컬렉션에서 영화 삭제
-    @DeleteMapping("/api/collections/{c_id}")
+    @DeleteMapping("/api/collections/authentication/{c_id}")
     public String deleteMovieFromCollection(@PathVariable Long c_id) {
-        collectionRepository.deleteById(c_id);
-        return "delete success";
+        return collectionService.deleteCollection(c_id);
     }
 
     // 예외 처리

@@ -18,7 +18,7 @@ public class UserController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostMapping("/api/signup")
-    public User createUser(@RequestBody SignupRequestDto signupRequestDto) {
+    public String createUser(@RequestBody SignupRequestDto signupRequestDto) {
         return userService.createUser(signupRequestDto);
     }
 

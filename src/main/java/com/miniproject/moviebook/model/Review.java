@@ -20,8 +20,8 @@ public class Review extends Timestamped{
     @Column(name = "rate", nullable = false)
     private String rate;
 
-    @Column(name = "username", nullable = false)
-    private String username;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Column(name = "content", nullable = false, columnDefinition = "LONGTEXT")
     private String content;
@@ -30,11 +30,21 @@ public class Review extends Timestamped{
     @JoinColumn(name = "m_id")
     private Movie movie;
 
-    public Review(ReviewRequestDto requestDto, String username, Movie movie) {
+    @ManyToOne
+    @JoinColumn(name = "u_id")
+    private User user;
+
+    public Review(ReviewRequestDto requestDto, String name, Movie movie, User user) {
         this.rate = requestDto.getRate();
         this.content = requestDto.getContent();
-        this.username = username;
+        this.name = name;
         this.movie = movie;
+        this.user = user;
+    }
+
+    public void update(ReviewRequestDto requestDto) {
+        this.rate = requestDto.getRate();
+        this.content = requestDto.getContent();
     }
 
 }

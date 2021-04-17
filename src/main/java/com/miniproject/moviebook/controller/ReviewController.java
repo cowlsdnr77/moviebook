@@ -4,6 +4,7 @@ import com.miniproject.moviebook.dto.ReviewRequestDto;
 import com.miniproject.moviebook.model.Review;
 import com.miniproject.moviebook.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,8 +19,8 @@ public class ReviewController {
 
     //해당 영화 리뷰 목록 조회
     @GetMapping("/api/movies/reviews/list/{m_id}")
-    public List<Review> getReviewList(@PathVariable Long m_id) {
-        return reviewService.getReviewList(m_id);
+    public Page<Review> getReviewList(@PathVariable Long m_id, @RequestParam(value = "page") int page) {
+        return reviewService.getReviewList(m_id, page);
     }
 
     //해당 영화 리뷰 작성

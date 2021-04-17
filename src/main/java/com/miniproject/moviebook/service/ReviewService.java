@@ -9,10 +9,14 @@ import com.miniproject.moviebook.repository.MovieRepository;
 import com.miniproject.moviebook.repository.ReviewRepository;
 import com.miniproject.moviebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -24,12 +28,13 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
 
-    // 해당 영화 리뷰 목록 조회
-    public List<Review> getReviewList(Long m_id) {
+    // 해당 영화 리뷰 목록 조회 //페이징 처리 필요
+    public Page<Review> getReviewList(Long m_id, @RequestParam(value = "page") int page) {
         Movie movie = movieRepository.findById(m_id).orElseThrow(
                 ()-> new IllegalArgumentException("영화 정보가 없습니다.")
         );
-        return reviewRepository.findByMovie(movie);
+        PageRequest pageRequest = PageRequest.of(page-1,5, Sort.by(Sort.Direction.DESC, "modifiedAt"));
+        return reviewRepository.findByMovie(movie, pageRequest);
     }
 
     // 해당 영화 리뷰 작성

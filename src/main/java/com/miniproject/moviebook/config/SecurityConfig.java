@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        filter.setForceEncoding(true);
 //        http.addFilterBefore(filter, CsrfFilter.class);
 
-        // /login에서 /api/v1/login으로 변경
+        // /login에서 /api/login으로 변경
         JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManager());
         authenticationFilter.setFilterProcessesUrl("/api/login");
 
@@ -107,8 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         config.addAllowedMethod("FETCH");
 
         //body에 유저 정보 담을때
-//        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "userInfo"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config); // /api/** 로 들어오는 요청은 위 사항을 따르게한다.

@@ -75,12 +75,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("username", principalDetails.getUser().getUsername())
                 .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
-
-//        String utf_name = URLEncoder.encode(principalDetails.getUser().getName(), StandardCharsets.UTF_8);
-//        String encode_name = Base64.getEncoder().encodeToString(utf_name.getBytes(StandardCharsets.UTF_8));
-
-
-
         ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -88,7 +82,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String userInfoJson = objectMapper.writeValueAsString(userInfoDto);
 
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken); //헤더에 Authorization으로 담김
-//        response.addHeader("userInfo",userInfoJson);
 
         //토큰 정보 body에 넣을떄
         response.addHeader("Content-type","application/json");

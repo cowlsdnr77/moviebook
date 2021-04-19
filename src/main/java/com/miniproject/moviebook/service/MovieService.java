@@ -13,7 +13,7 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
 
-    // 랜덤으로 영화 목록 10개 리스트 리턴하는 함수
+    // 랜덤으로 영화 목록 7개 리스트 리턴하는 함수
     public List<Optional<Movie>> findRandomMovieList() {
 
         List<Optional<Movie>> movieList = new ArrayList<>();

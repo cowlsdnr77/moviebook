@@ -8,6 +8,12 @@
   - 깃허브 주소: https://github.com/rayrayj92/movie-book
 - 백엔드 (Spring): 채진욱, 엄민식
 
+## 📌 프로젝트 주소
+- http://moviebook99.shop/
+
+## 📽 시연 영상
+- https://youtu.be/c6mZIPFTwj4
+
 ## 💻 백엔드 개발 환경
 - Java: `jdk 1.11.0`
 - Framework: `SpringBoot`

@@ -12,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,7 +35,7 @@ public class CollectionService {
     }
 
     // 컬렉션 추가
-    public String addCollection(Long m_id) {
+    public Map<String, String> addCollection(Long m_id) {
         // 현재 유저 정보
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = ((PrincipalDetails) authentication.getPrincipal()).getUser();
@@ -49,12 +51,16 @@ public class CollectionService {
         } else {
             Collection collection = new Collection(user,movie);
             collectionRepository.save(collection);
-            return "컬렉션에 추가되었습니다.";
+
+            Map<String, String> map = new HashMap<>();
+            map.put("msg", "컬렉션에 추가되었습니다.");
+
+            return map;
         }
     }
 
     // 컬렉션 삭제
-    public String deleteCollection(Long c_id){
+    public Map<String, String> deleteCollection(Long c_id){
         Collection collection = collectionRepository.findById(c_id).orElseThrow(
                 () -> new IllegalArgumentException("컬렉션 정보가 없습니다.")
         );
@@ -64,7 +70,11 @@ public class CollectionService {
 
         if (user.getU_id().equals(collection.getUser().getU_id())) {
             collectionRepository.deleteById(collection.getC_id());
-            return "컬렉션이 삭제되었습니다.";
+
+            Map<String, String> map = new HashMap<>();
+            map.put("msg", "컬렉션이 삭제되었습니다.");
+
+            return map;
         } else {
             throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
         }

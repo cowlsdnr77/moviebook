@@ -4,6 +4,7 @@ package com.miniproject.moviebook.config;
 import com.miniproject.moviebook.jwt.JwtAuthenticationEntryPoint;
 import com.miniproject.moviebook.jwt.JwtAuthenticationFilter;
 import com.miniproject.moviebook.jwt.JwtAuthorizationFilter;
+import com.miniproject.moviebook.repository.RefreshTokenRepository;
 import com.miniproject.moviebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -38,6 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; //jwt 인증이 실패할 경우 처리할때 필요
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Bean
@@ -56,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.addFilterBefore(filter, CsrfFilter.class);
 
         // /login에서 /api/login으로 변경
-        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManager());
+        JwtAuthenticationFilter authenticationFilter = new JwtAuthenticationFilter(authenticationManager(),refreshTokenRepository);
         authenticationFilter.setFilterProcessesUrl("/api/login");
 
         http.csrf().disable();
@@ -75,8 +77,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable() //header의 Authorization에 id,pw를 들고 가는 방식 - disable 하고
                 // Bearer방식(header의 Authorization에 토큰을 넣는 방식)을 쓸것임
                 .addFilter(authenticationFilter) // /login에서 /api/v1/login으로 변경
-                .addFilter(new JwtAuthenticationFilter(authenticationManager())) //AuthenticationManager 가 파라미터로 들어가야함
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository)) //AuthenticationManager 가 파라미터로 들어가야함
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(),refreshTokenRepository)) //AuthenticationManager 가 파라미터로 들어가야함
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository,refreshTokenRepository)) //AuthenticationManager 가 파라미터로 들어가야함
 
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
@@ -107,7 +109,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         config.addAllowedMethod("FETCH");
 
         //body에 유저 정보 담을때
-        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        config.setExposedHeaders(Arrays.asList("Access-Token", "Content-Type", "Refresh-Token"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config); // /api/** 로 들어오는 요청은 위 사항을 따르게한다.

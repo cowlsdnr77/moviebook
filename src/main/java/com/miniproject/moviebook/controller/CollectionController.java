@@ -24,13 +24,13 @@ public class CollectionController {
 
     //User의 영화 컬렉션에 영화 추가
     @PostMapping("/api/collections/authentication/{m_id}")
-    public String addMovieToCollection( @PathVariable Long m_id) {
+    public Map<String, String> addMovieToCollection( @PathVariable Long m_id) {
         return collectionService.addCollection(m_id);
     }
 
     //User의 영화 컬렉션에서 영화 삭제
     @DeleteMapping("/api/collections/authentication/{c_id}")
-    public String deleteMovieFromCollection(@PathVariable Long c_id) {
+    public Map<String, String> deleteMovieFromCollection(@PathVariable Long c_id) {
         return collectionService.deleteCollection(c_id);
     }
 
@@ -38,7 +38,7 @@ public class CollectionController {
     @ExceptionHandler({IllegalArgumentException.class})
     public Map<String, String> handleException(Exception e) {
         Map<String, String> map = new HashMap<>();
-        map.put("errMsg", e.getMessage());
+        map.put("msg", e.getMessage());
         return map;
     }
 

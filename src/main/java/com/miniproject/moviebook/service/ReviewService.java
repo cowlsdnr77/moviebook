@@ -18,7 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class ReviewService {
     }
 
     // 해당 영화 리뷰 작성
-    public String createReview(ReviewRequestDto requestDto, Long m_id) {
+    public Map<String, String> createReview(ReviewRequestDto requestDto, Long m_id) {
         // 현재 유저 정보
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = ((PrincipalDetails) authentication.getPrincipal()).getUser();
@@ -49,12 +50,16 @@ public class ReviewService {
 
         Review review = new Review(requestDto, user.getName(), movie, user);
         reviewRepository.save(review);
-        return "리뷰가 작성되었습니다.";
+
+        Map<String, String> map = new HashMap<>();
+        map.put("msg", "리뷰가 작성되었습니다.");
+
+        return map;
     }
 
     // 해당 영화 리뷰 수정
     @Transactional
-    public String updateReview(ReviewRequestDto requestDto, Long r_id) {
+    public Map<String, String> updateReview(ReviewRequestDto requestDto, Long r_id) {
         Review review = reviewRepository.findById(r_id).orElseThrow(
                 () -> new IllegalArgumentException("리뷰 정보가 없습니다.")
         );
@@ -65,14 +70,18 @@ public class ReviewService {
 
         if (user.getU_id().equals(review.getUser().getU_id())) {
             review.update(requestDto);
-            return "리뷰가 수정되었습니다.";
+
+            Map<String, String> map = new HashMap<>();
+            map.put("msg", "리뷰가 수정되었습니다.");
+
+            return map;
         } else {
             throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
         }
     }
 
     // 해당 영화 리뷰 삭제
-    public String deleteReview(Long r_id) {
+    public Map<String, String> deleteReview(Long r_id) {
         Review review = reviewRepository.findById(r_id).orElseThrow(
                 () -> new IllegalArgumentException("리뷰 정보가 없습니다.")
         );
@@ -83,7 +92,11 @@ public class ReviewService {
 
         if (user.getU_id().equals(review.getUser().getU_id())) {
             reviewRepository.deleteById(review.getR_id());
-            return "리뷰가 삭제되었습니다.";
+
+            Map<String, String> map = new HashMap<>();
+            map.put("msg", "리뷰가 삭제되었습니다.");
+
+            return map;
         } else {
             throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
         }

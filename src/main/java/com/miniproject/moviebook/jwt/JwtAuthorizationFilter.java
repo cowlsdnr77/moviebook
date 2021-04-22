@@ -24,9 +24,13 @@ import java.security.Key;
 import java.util.*;
 
 
+// ******* 인증/권한 이 필요한 경우 타는 filter
+// 시큐리티가 filter를 가지고 있는데 그 필터 중 BasicAuthenticationFilter라는 것이 있음
+// *******권한이나 인증이 필요한 특정 주소를 요청했을때 위 필터를 무조건 타게 되어있음 ********
+// 만약 권한이나 인증이 필요한 주소가 아니라면 위 필터를 거치지 않음
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     byte[] keyBytes = Decoders.BASE64.decode(JwtProperties.SECRET_KEY);
@@ -38,11 +42,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
+    //인증이나 권한이 필요한 주소요청이 있을때 해당 필터를 타게됨
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         System.out.println("인증이나 권한이 필요한 주소 요청이 됨");
 
-        String jwtHeader = request.getHeader("Access-Token");
+        String jwtHeader = request.getHeader("Access-Token"); // Request 요청의 헤더에 있는 Access-Token 확인
         System.out.println("jwtHeader: " + jwtHeader);
 
         if (jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)) {
@@ -55,7 +60,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // if : refreshToken이 들어왔다는 것은 accessToken이 만료됐다는 것
+        // RefreshToken이 들어왔다는 것은 AccessToken이 만료됐다는 것
         String refreshjwtHeader = request.getHeader("Refresh-Token");
 
         if(refreshjwtHeader != null && refreshjwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)) { //accessToken과 refreshToken이 둘다 있다면

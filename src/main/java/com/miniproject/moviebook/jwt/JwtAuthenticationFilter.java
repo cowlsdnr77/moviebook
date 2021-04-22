@@ -27,13 +27,17 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
 
+//스프링 시큐리티에 UsernamePasswordAuthenticationFilter 가 있음
+//******** /login 요청해서 username,password를 POST로 전송하면
+// UsernamePasswordAuthenticationFilter 필터가 동작함 -> 근데 SecurityConfig에서 formLogin을 안쓰게해서 동작안함
+// 필터가 동작하려면 UsernamePasswordAuthenticationFilter를 extends한 JwtAuthenticationFilter를 SecurityConfig에 등록해아함
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
+    // /login 요청을 하면 로그인 시도를 위해서 실행되는 메소드
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         System.out.println("로그인 시도중");
@@ -46,13 +50,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             System.out.println(user);
 
 
+            // 로그인 시도를 위해 토큰을 만든다.
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword());
 
 
+            // PrincipalDetailsService의 loadUserByUsername() 함수가 실행된 후 정상이면 authentication이 리턴됨
+            // DB에 있는 username과 password 가 일치한다는 뜻
+            // Authentication에는 내가 로그인한 정보가 담김
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
 
+            //=> 로그인이 되었다는 뜻
             PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
 
             System.out.println(principalDetails.getUser().getUsername());
@@ -66,24 +75,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
 
+    // attemptAuthentication 실행 후 인증이 정상적으로 되었으면 successfulAuthentication 함수가 실행됨
+    // JWT 토큰을 만들어서 request 요청한 사용자에게 JWT 토큰을 response 해주면 됨
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("successfulAuthentication 실행됨: 인증이 완료되었다는 것");
 
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
-
-//        기존 jwt 토큰 생성 방식
-//        String jwtAccessToken = JWT.create()
-//                .withSubject("cos 토큰")
-//                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-//                .withClaim("id", principalDetails.getUser().getU_id())
-//                .withClaim("username", principalDetails.getUser().getUsername())
-//                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
-//
-//        String jwtRefreshToken = JWT.create()
-//                .withSubject("refresh 토큰")
-//                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME * 48)) //유효기간: 하루
-//                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
 
         byte[] keyBytes = Decoders.BASE64.decode(JwtProperties.SECRET_KEY);
         Key key = Keys.hmacShaKeyFor(keyBytes);
@@ -92,12 +90,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .setSubject("cos 토큰")
                 .claim("u_id", principalDetails.getUser().getU_id())
                 .claim("username", principalDetails.getUser().getUsername())
-                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME)) //AccessToken 유효시간: 30분
                 .signWith(key, SignatureAlgorithm.HS512)    // header "alg": "HS512"
                 .compact();
 
         String jwtRefreshToken = Jwts.builder()
-                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME * 48)) //유효시간: 하루
+                .setExpiration(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME * 48)) //RefreshToken 유효시간: 24시간
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
@@ -107,7 +105,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UserInfoDto userInfoDto = new UserInfoDto(principalDetails.getUser().getU_id(),principalDetails.getUser().getName());
         String userInfoJson = objectMapper.writeValueAsString(userInfoDto);
 
-        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtAccessToken); //헤더에 Authorization으로 담김
+        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtAccessToken); //헤더에 Access-Token 추가
         response.addHeader("Refresh-Token", JwtProperties.TOKEN_PREFIX + jwtRefreshToken); //헤더에 Refresh-Token 추가
         //토큰 정보 body에 넣을떄
         response.addHeader("Content-type","application/json");

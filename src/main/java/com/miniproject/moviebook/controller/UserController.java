@@ -17,11 +17,13 @@ public class UserController {
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    // 회원가입
     @PostMapping("/api/signup")
     public String createUser(@RequestBody SignupRequestDto signupRequestDto) {
         return userService.createUser(signupRequestDto);
     }
 
+    // 회원가입 시 username 중복 확인
     @GetMapping("/api/signup/{username}")
     public String usernameCheck(@PathVariable String username) {
         return userService.usernameCheck(username);

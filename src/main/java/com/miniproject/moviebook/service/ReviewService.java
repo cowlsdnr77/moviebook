@@ -29,7 +29,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final MovieRepository movieRepository;
 
-    // 해당 영화 리뷰 목록 조회 //페이징 처리 필요
+    // 해당 영화 리뷰 목록 조회 //페이징 처리
     public Page<Review> getReviewList(Long m_id, @RequestParam(value = "page") int page) {
         Movie movie = movieRepository.findById(m_id).orElseThrow(
                 ()-> new IllegalArgumentException("영화 정보가 없습니다.")
